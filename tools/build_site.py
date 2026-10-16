@@ -5,7 +5,8 @@ Býr til gögn vefsins (statísk) úr möppu með myndum.
 
     python tools/build_site.py "<mappa með völdum myndum>"
     python tools/build_site.py "<mappa>" --list valdar.txt      # bara myndir á listanum
-    python tools/build_site.py "<mappa>" --copy-photos          # afritar líka frummyndirnar í photos/
+    python tools/build_site.py "<mappa>" --copy-photos
+    python tools/build_site.py --lists-only               # bara ný geojson-/dxf3d-skrá          # afritar líka frummyndirnar í photos/
 
 Býr til:
     site/data/photos.csv          nafn;lat;lon;date;heading;category;mtime;pano
@@ -84,13 +85,20 @@ def write_lists(data_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("folder")
+    ap.add_argument("folder", nargs="?")
+    ap.add_argument("--lists-only", action="store_true", help="bara uppfæra geojson-/dxf3d-lista (engar myndir)")
     ap.add_argument("--list", help="textaskrá með skráarnöfnum (eitt á línu) - bara þessar myndir")
     ap.add_argument("--threads", type=int, default=8)
     ap.add_argument("--thumb-size", type=int, default=640)
     ap.add_argument("--copy-photos", action="store_true", help="afrita frummyndir í photos/")
     args = ap.parse_args()
 
+    if args.lists_only:
+        geo, dxf = write_lists(SITE / "data")
+        print(f"geojson-lög: {len(geo)}; 3D-skrár: {len(dxf)}")
+        return 0
+    if not args.folder:
+        ap.error("vantar myndamöppu (eða --lists-only)")
     root = Path(args.folder)
     if not root.is_dir():
         print(f"Mappa fannst ekki: {root}")
