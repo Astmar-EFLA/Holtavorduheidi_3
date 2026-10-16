@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>HH3 – Myndakort</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo" role="img" aria-label="EFLA">
+      <svg viewBox="425 350 1290 1290" xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" aria-hidden="true">
+        <path d="M1000.27,1125.77 C1030.83,1168.64 1045.98,1215.85 1045.39,1267.68 C1044.07,1381.82 963.40,1478.40 851.17,1499.29 C717.94,1524.09 597.73,1435.03 573.74,1311.73 C548.87,1183.89 628.92,1059.32 756.36,1033.00 C851.62,1013.33 931.69,1043.12 994.39,1118.04 C996.31,1120.34 998.04,1122.80 1000.27,1125.77 z"/>
+        <path d="M1485.76,1223.77 C1437.95,1270.74 1360.84,1255.92 1333.25,1197.43 C1305.38,1138.35 1344.84,1069.66 1409.58,1063.44 C1459.23,1058.68 1501.67,1092.73 1510.83,1136.73 C1517.70,1169.74 1509.33,1198.64 1485.76,1223.77 z"/>
+        <path d="M1449.32,564.47 C1482.22,577.12 1503.17,599.76 1510.83,633.47 C1522.98,686.95 1487.06,737.26 1435.94,746.77 C1384.47,756.35 1334.07,721.47 1325.71,669.78 C1317.21,617.21 1351.71,568.90 1404.17,560.59 C1419.08,558.23 1434.07,559.29 1449.32,564.47 z"/>
+        <path d="M1614.12,375.81 C1654.70,358.86 1699.61,386.48 1701.91,430.68 C1703.52,461.46 1682.33,489.42 1652.00,495.27 C1616.99,502.03 1590.93,482.50 1580.55,457.27 C1568.99,429.18 1579.67,396.54 1605.49,380.31 C1608.01,378.72 1610.76,377.48 1614.12,375.81 z"/>
+        <path d="M926.17,625.84 C964.06,612.91 1001.62,638.25 1008.59,673.04 C1013.07,695.40 1003.56,725.68 977.83,740.16 C954.50,753.29 925.27,750.43 905.21,732.72 C871.45,702.93 878.62,648.80 918.99,628.81 C921.07,627.78 923.26,626.97 926.17,625.84 z"/>
+        <path d="M453.34,1600.52 C432.34,1567.27 445.37,1521.50 484.14,1507.44 C508.04,1498.77 530.44,1502.83 549.09,1520.34 C567.98,1538.09 573.85,1560.40 566.07,1585.12 C558.42,1609.42 541.33,1624.21 515.96,1628.19 C489.70,1632.32 469.18,1622.34 453.34,1600.52 z"/>
+      </svg>
+    </div>
+    <h1>Holtavörðuheiðarlína 3 (HH3) – Myndakort</h1>
+    <div class="controls">
+      <button id="shape-btn" class="btn" type="button">🗺️ Línuleið (shapefile/GeoJSON)</button>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <input id="search-input" class="search-input" type="search" placeholder="Leita í skráarnafni eða dagsetningu…" />
+    <div class="date-filters">
+      <label>Frá <input id="date-from" type="date" /></label>
+      <label>Til <input id="date-to" type="date" /></label>
+      <button id="category-toggle-btn" class="btn btn-secondary" type="button" hidden>🏷️ Flokkar</button>
+      <button id="clear-filters-btn" class="btn btn-secondary" type="button">Hreinsa síu</button>
+    </div>
+  </div>
+  <div id="category-filter" class="category-filter"></div>
+
+  <div id="status-bar" class="status-bar" role="status" aria-live="polite"></div>
+
+  <div class="map-wrap" id="map-wrap">
+    <div id="map"></div>
+    <div id="legend" class="legend"></div>
+  </div>
+
+  <div id="lightbox" class="lightbox hidden">
+    <button id="lightbox-close" class="lightbox-close" type="button" aria-label="Loka">✕</button>
+    <button id="lightbox-prev" class="lightbox-nav lightbox-prev" type="button" aria-label="Fyrri mynd">‹</button>
+    <img id="lightbox-img" src="" alt="" />
+    <div id="lightbox-pano" class="lightbox-pano hidden"></div>
+    <button id="lightbox-next" class="lightbox-nav lightbox-next" type="button" aria-label="Næsta mynd">›</button>
+    <div id="lightbox-caption" class="lightbox-caption"></div>
+    <div id="pano-overlay-panel" class="pano-overlay-panel hidden">
+      <div id="po-dxf-section" class="po-dxf-section hidden">
+        <label class="po-toggle"><input type="checkbox" id="po-dxf-enabled" /> 3D úr DXF: <span id="po-dxf-name"></span></label>
+        <div class="po-fields po-fields-dxf">
+          <label>Hæð myndavélar yfir jörð við mannvirki <output id="po-agl-out"></output><input type="range" id="po-agl" min="0" max="250" step="1" /></label>
+        </div>
+      </div>
+      <label class="po-toggle"><input type="checkbox" id="po-enabled" /> Yfirlag: línur og möstur úr kortinu</label>
+      <div id="po-fields" class="po-fields">
+        <label>Stefna miðju (offset) <output id="po-yaw-out"></output><input type="range" id="po-yaw" min="-180" max="180" step="0.5" /></label>
+        <label>Hæðarmunur lands <output id="po-ground-out"></output><input type="range" id="po-ground" min="-150" max="150" step="1" /></label>
+        <label>Hæð mastra <output id="po-mast-out"></output><input type="range" id="po-mast" min="10" max="90" step="1" /></label>
+        <label>Hæð lína <output id="po-line-out"></output><input type="range" id="po-line" min="5" max="80" step="1" /></label>
+        <label>Radíus <output id="po-radius-out"></output><input type="range" id="po-radius" min="1" max="30" step="1" /></label>
+      </div>
+      <div id="po-info" class="po-info"></div>
+      <button id="po-export" class="po-export" type="button" title="Vistar 360° myndina með yfirlaginu fast inni í sér (JPG)">💾 Vista mynd með yfirlagi</button>
+    </div>
+  </div>
+
+  <input type="file" id="shape-input" accept=".zip,.geojson,.json,application/zip,application/json" style="display:none" />
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/proj4@2.9.2/dist/proj4.js"></script>
+  <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="site-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

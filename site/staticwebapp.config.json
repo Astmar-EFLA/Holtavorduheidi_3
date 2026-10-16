@@ -1,0 +1,19 @@
+{
+  "$comment": "Allar slóðir krefjast innskráningar OG hlutverksins 'reader' (veitt með boði í Azure-gáttinni: Static Web App > Role management > Invite). Án hlutverks kemst enginn inn þótt hann geti skráð sig inn með Microsoft-aðgangi.",
+  "routes": [
+    { "route": "/.auth/login/github", "statusCode": 404 },
+    { "route": "/.auth/login/twitter", "statusCode": 404 },
+    { "route": "/.auth/login/google", "statusCode": 404 },
+    { "route": "/*", "allowedRoles": ["reader"] }
+  ],
+  "responseOverrides": {
+    "401": { "redirect": "/.auth/login/aad?post_login_redirect_uri=.referrer", "statusCode": 302 },
+    "403": { "statusCode": 403, "rewrite": "/forbidden.html" }
+  },
+  "mimeTypes": { ".dxf3d": "application/octet-stream", ".geojson": "application/geo+json" },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "same-origin",
+    "Cache-Control": "no-cache"
+  }
+}

@@ -1,0 +1,5 @@
+# Frummyndir (stórar) fara ekki í repo nema þær séu viljandi afritaðar með --copy-photos.
+# Taktu þessa línu út ef photos/ á að fylgja með í repo/síðu.
+site/photos/
+__pycache__/
+*.pyc
