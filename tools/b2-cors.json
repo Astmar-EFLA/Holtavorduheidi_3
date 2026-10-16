@@ -1,0 +1,10 @@
+[
+  {
+    "corsRuleName": "hh3-vefur",
+    "allowedOrigins": ["http://localhost:8118", "http://localhost:8117", "https://<SLOÐ-VEFSINS>.azurestaticapps.net"],
+    "allowedOperations": ["b2_download_file_by_name", "b2_download_file_by_id", "s3_get", "s3_head"],
+    "allowedHeaders": ["*"],
+    "exposeHeaders": ["Content-Length", "Content-Range", "ETag"],
+    "maxAgeSeconds": 3600
+  }
+]

@@ -71,6 +71,24 @@ prófun lýkur. Opin r2.dev-slóð er aðgengileg ÖLLUM sem þekkja hana.
 Skoðarinn setur `crossOrigin='anonymous'` á myndirnar; án CORS-hausa frá bucket
 birtist 360° myndin ekki (WebGL) og útflutningur virkar ekki.
 
+## Prófun með Backblaze B2 (hugmyndaprófun)
+
+Sama hugmynd og með R2 (þriðji aðili, opið bucket = aðgengilegt öllum sem þekkja slóðina).
+
+1. B2 > Buckets > Create a Bucket: **Public**, t.d. `hh3-myndir`. Slökktu á dulkóðun/lás ef óskað.
+2. CORS: annað hvort Bucket Settings > CORS Rules > "Share everything in this bucket with every
+   origin" (einfaldast, bucketið er opið hvort sem er) eða sérreglur úr `tools/b2-cors.json`
+   (B2 CLI: `b2 bucket update --cors-rules "$(cat tools/b2-cors.json)" hh3-myndir allPublic`).
+3. Upload: dragðu möppuna inn í vafrann (Browse Files > Upload) eða notaðu `rclone`/`b2` CLI.
+   Haltu SÖMU skráarnöfnum/möppum og í `photos.csv` (`unsorted/...` verður að vera í möppu).
+4. Smelltu á eina skrá og afritaðu "Friendly URL": `https://fNNN.backblazeb2.com/file/hh3-myndir/<skrá>`.
+   `photoBase` er allt fram að og með `.../file/hh3-myndir/` (endar á `/`).
+5. `site/site-config.js`: `photoBase: 'https://fNNN.backblazeb2.com/file/hh3-myndir/'`.
+6. Prófa: `python -m http.server 8118 -d site`.
+
+Ath: ókeypis útumferð er takmörkuð (um 1 GB á dag samkvæmt skilmálum þegar þetta var skrifað -
+athugaðu núverandi skilmála); ein 360° mynd er ~35 MB.
+
 ## Innskráning
 
 `staticwebapp.config.json` krefst hlutverksins `reader` á allar slóðir. Notendur
