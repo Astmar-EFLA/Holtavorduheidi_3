@@ -1918,6 +1918,8 @@
     };
 
     const probe = new Image();
+    // Myndir geta legið á öðru léni (R2/Blob): WebGL-áferð og útflutningur krefjast CORS.
+    probe.crossOrigin = 'anonymous';
     probe.onload = () => {
       const ratio = probe.naturalWidth / probe.naturalHeight;
       if (ratio >= PANO_MIN_RATIO && ratio <= PANO_MAX_RATIO) {

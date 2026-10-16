@@ -51,6 +51,26 @@ eru áfram í repo. Ef safnið reynist lítið má nota `--copy-photos` og taka
 Blob-aðgangur þarf að vera lokaður (ekki opinn fyrir alla) - sjá opna spurningu í
 `PLAN-vefutgafa.md` (IT).
 
+## Prófun með Cloudflare R2 (hugmyndaprófun)
+
+Aðeins til að prófa hugmyndina á meðan beðið er eftir Azure Blob frá IT. R2 er
+þriðji aðili - settu bara myndir þangað sem má fara þangað, og eyddu bucket þegar
+prófun lýkur. Opin r2.dev-slóð er aðgengileg ÖLLUM sem þekkja hana.
+
+1. Cloudflare > R2 > Create bucket (t.d. `hh3-myndir`).
+2. Settings > CORS policy: límdu inn `tools/r2-cors.json` (settu inn rétta slóð vefsins;
+   `http://localhost:8117` er fyrir prófun á tölvunni).
+3. Settings > Public access: kveiktu á r2.dev-slóðinni (aðeins próf) - eða tengdu eigið lén.
+4. Settu myndirnar inn með SÖMU skráarnöfnum/möppuskipan og í `photos.csv`
+   (dashboard > Upload, eða `rclone`/`wrangler` með þínum eigin lyklum - ekki setja
+   lykla í repo).
+5. Settu slóðina í `site/site-config.js`:
+   `photoBase: 'https://pub-xxxxxxxx.r2.dev/'` (endar á `/`).
+6. `python -m http.server 8117 -d site` og opnaðu http://localhost:8117.
+
+Skoðarinn setur `crossOrigin='anonymous'` á myndirnar; án CORS-hausa frá bucket
+birtist 360° myndin ekki (WebGL) og útflutningur virkar ekki.
+
 ## Innskráning
 
 `staticwebapp.config.json` krefst hlutverksins `reader` á allar slóðir. Notendur
