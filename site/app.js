@@ -440,9 +440,18 @@
       },
       onEachFeature: (feature, fl) => {
         const props = feature.properties || {};
-        const keys = Object.keys(props).filter((k) => props[k] !== null && props[k] !== '');
+        const keys = Object.keys(props).filter((k) => props[k] !== null && props[k] !== '' && k !== 'Mynd');
         if (!keys.length) return;
-        fl.bindPopup(keys.map((k) => `<b>${escapeHtml(k)}:</b> ${escapeHtml(props[k])}`).join('<br>'));
+        let html = keys.map((k) => `<b>${escapeHtml(k)}:</b> ${escapeHtml(props[k])}`).join('<br>');
+        // "Mynd" = skráarnafn 360° myndar við þetta mastur (sjá tools/masts_to_geojson.py)
+        if (props.Mynd) {
+          const id = String(props.Mynd);
+          const thumb = thumbUrl({ id });
+          html += `<div class="popup-content"><img class="popup-thumb" src="${thumb}" alt=""
+            onclick="window.__netdiskMap.openLightbox('${id.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" />
+            <a class="btn popup-link" href="#" onclick="window.__netdiskMap.openLightbox('${id.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'); return false;">📷 Opna 360° mynd</a></div>`;
+        }
+        fl.bindPopup(html);
       },
     });
   }
@@ -622,7 +631,7 @@
         const pref = prefs[filename] || {};
         const entry = addShapeEntry(
           stripGeojsonExt(filename), geojson,
-          pref.color || DEFAULT_SHAPE_COLOR, pref.visible !== false, pref.labelField, filename
+          pref.color || geojson.layerColor || DEFAULT_SHAPE_COLOR, pref.visible !== false, pref.labelField, filename
         );
         loaded++;
       } catch (err) {
