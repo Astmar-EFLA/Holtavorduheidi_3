@@ -87,6 +87,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("folder", nargs="?")
     ap.add_argument("--lists-only", action="store_true", help="bara uppfæra geojson-/dxf3d-lista (engar myndir)")
+    ap.add_argument("--exclude", action="append", default=[], help="sleppa möppu (efsta stigs nafn), má endurtaka, t.d. --exclude unsorted")
     ap.add_argument("--list", help="textaskrá með skráarnöfnum (eitt á línu) - bara þessar myndir")
     ap.add_argument("--threads", type=int, default=8)
     ap.add_argument("--thumb-size", type=int, default=640)
@@ -111,6 +112,9 @@ def main():
             p for p in files
             if p.name.lower() in wanted or str(p.relative_to(root)).replace("\\", "/").lower() in wanted
         ]
+    if args.exclude:
+        skip = {x.lower() for x in args.exclude}
+        files = [p for p in files if p.relative_to(root).parts[0].lower() not in skip or len(p.relative_to(root).parts) == 1]
     print(f"{len(files)} myndir valdar úr {root}")
 
     data_dir = SITE / "data"

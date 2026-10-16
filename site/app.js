@@ -7,7 +7,7 @@
   // site-config.js (photoBase/thumbBase) - getur bent á möppu í síðunni sjálfri
   // eða á Azure Blob Storage ef myndirnar eru of stórar fyrir síðuna.
   // ---------------------------------------------------------------------
-  const SITE = Object.assign({ photoBase: 'photos/', thumbBase: 'thumbs/' }, window.SITE_CONFIG || {});
+  const SITE = Object.assign({ photoBase: 'photos/', thumbBase: 'thumbs/', overlay: false }, window.SITE_CONFIG || {});
   const CSV_URL = 'data/photos.csv';
   const PHOTO_BASE = SITE.photoBase;
   const THUMB_BASE = SITE.thumbBase;
@@ -1934,7 +1934,7 @@
           showFlat();
           return;
         }
-        startPanoOverlay(photo, url, probe);
+        if (SITE.overlay) startPanoOverlay(photo, url, probe);
       } else {
         showFlat();
       }

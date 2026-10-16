@@ -3,4 +3,6 @@
 window.SITE_CONFIG = {
   photoBase: 'https://f003.backblazeb2.com/file/Holtavorduheidi3/',
   thumbBase: 'thumbs/',
+  // Yfirlag lína/mastra úr korti ofan á 360° myndum (sleðar + útflutningur). Slökkt að sinni.
+  overlay: false,
 };
